@@ -1,0 +1,52 @@
+server_tokens off;
+
+server {
+    listen 80;
+    server_name {% for dn in item.aliases %}{{ dn }} {% endfor %};
+
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl default deferred;
+    server_name {% for dn in item.aliases %}{{ dn }} {% endfor %};
+
+    ssl on;
+    ssl_certificate         /etc/letsencrypt/live/{{ item.domain_name }}/fullchain.pem;
+    ssl_certificate_key     /etc/letsencrypt/live/{{ item.domain_name }}/privkey.pem;
+    ssl_trusted_certificate /etc/letsencrypt/live/{{ item.domain_name }}/fullchain.pem;
+
+    ssl_session_cache shared:SSL:50m;
+    ssl_session_timeout 5m;
+    ssl_stapling on;
+    ssl_stapling_verify on;
+
+    ssl_protocols TLSv1.1 TLSv1.2;
+    ssl_ciphers "ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256;
+    ssl_dhparam /etc/nginx/dhparams.pem;
+    ssl_prefer_server_ciphers on;
+
+    location /.well-known/acme-challenge {
+        root /data/www/certbot;
+        try_files $uri $uri/ =404;
+    }
+
+    {% for loc in item.extra_locations %}
+    location {{ loc.url }} {
+        {% if loc.internal is defined and loc.internal %}internal;
+        {% endif %}
+        alias {{ loc.path }};
+    }
+    {% endfor %}
+
+    location / {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Host $http_host;
+
+        proxy_redirect off;
+
+        proxy_pass {{ item.internal_address }};
+    }
+}

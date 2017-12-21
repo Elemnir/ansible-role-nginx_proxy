@@ -1,0 +1,77 @@
+---
+- block:
+    - name: Install Nginx and other packages
+      package:
+        name: "{{ item }}"
+        state: latest
+      with_items:
+        - nginx
+        - certbot
+
+    - name: Create directories
+      file:
+        path: "{{ item }}"
+        mode: 0755
+        state: directory
+      with_items:
+        - /data/www
+        - /data/www/certbot
+
+    - name: Open firewall for HTTP and HTTPS
+      firewalld:
+        service: "{{ item }}"
+        state: enabled
+        permanent: true
+        immediate: true
+      with_items:
+        - http
+        - https
+
+    - name: Generate dhparams
+      shell: openssl dhparam -out /etc/nginx/dhparams.pem 2048
+      args:
+        creates: /etc/nginx/dhparams.pem
+
+    - name: Copy Nginx config file
+      template:
+        src: "nginx.conf.j2"
+        dest: "/etc/nginx/nginx.conf"
+        backup: yes
+      register: nginx_conf_result
+
+    - name: Restart Nginx when nginx.conf changes
+      systemd:
+        name: nginx.service
+        state: restarted
+      when: nginx_conf_result|changed
+
+    - name: Run Certbot to obtain SSL certs for each site
+      shell: "certbot certonly -n --webroot -w /data/www/certbot -m {{ admin_email }} --agree-tos {% for d in item.aliases %}-d {{d}} {% endfor %}"
+      args:
+        creates: "/etc/letsencrypt/live/{{ item.domain_name }}"
+      with_items: "{{ nginx_proxy_sites }}"
+
+    - name: Copy the site config files
+      template:
+        src: "site.conf.j2"
+        dest: "/etc/nginx/conf.d/{{ item.domain_name }}.conf"
+      register: site_conf_result
+      with_items: "{{ nginx_proxy_sites }}"
+
+    - name: Restart Nginx when site configs change
+      systemd:
+        name: nginx.service
+        state: restarted
+      when: site_conf_result|changed
+
+    - name: Enable Nginx
+      systemd:
+        name: nginx.service
+        enabled: yes
+
+    - name: Add cronjob to renew certificates
+      cron:
+        name: "Certbot renewal"
+        special_time: monthly
+        job: "certbot renew --deploy-hook 'systemctl restart nginx.service'"
+

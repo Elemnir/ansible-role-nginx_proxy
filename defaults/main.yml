@@ -1,0 +1,19 @@
+---
+
+admin_email: ahoward0920@gmail.com
+
+nginx_proxy_sites: []
+
+# - domain_name: string (foo.nics.utk.edu)
+#   enabled: Boolean
+#   unit_name: string (foo)
+#   repo: string (/nics/admin/repos/foo.git)
+#   source_path: path (/data/www/foo.nics.utk.edu)
+#   internal_address: hostname (127.0.0.1:8010)
+#   aliases: # List of valid domains
+#     - foo.nics.utk.edu
+#     - cashew.nics.utk.edu
+#   environment: # Dictionary of environment variables
+#     DJANGO_SECRET_KEY: supersecret
+#     DJANGO_DB_PASSWORD: dbpassword123
+
