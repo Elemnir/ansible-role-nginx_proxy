@@ -1,4 +1,5 @@
 ---
+
 - block:
     - name: Install Nginx and other packages
       package:
@@ -75,3 +76,4 @@
         special_time: monthly
         job: "certbot renew --deploy-hook 'systemctl restart nginx.service'"
 
+  become: true
