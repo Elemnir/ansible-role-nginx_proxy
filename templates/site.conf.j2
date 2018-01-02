@@ -31,6 +31,7 @@ server {
         try_files $uri $uri/ =404;
     }
 
+    {% if 'extra_locations' in item %}
     {% for loc in item.extra_locations %}
     location {{ loc.url }} {
         {% if loc.internal is defined and loc.internal %}internal;
@@ -38,6 +39,7 @@ server {
         alias {{ loc.path }};
     }
     {% endfor %}
+    {% endif %}
 
     location / {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

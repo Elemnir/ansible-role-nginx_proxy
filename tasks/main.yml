@@ -12,6 +12,8 @@
     - name: Create directories
       file:
         path: "{{ item }}"
+        owner: nginx
+        group: nginx
         mode: 0755
         state: directory
       with_items:
