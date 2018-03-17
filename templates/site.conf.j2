@@ -2,14 +2,14 @@ server_tokens off;
 
 server {
     listen 80;
-    server_name {% for dn in item.aliases %}{{ dn }} {% endfor %};
+    server_name {{ item.domain_name }}{% for dn in item.aliases %} {{ dn }}{% endfor %};
 
     return 301 https://$host$request_uri;
 }
 
 server {
     listen 443 ssl default deferred;
-    server_name {% for dn in item.aliases %}{{ dn }} {% endfor %};
+    server_name {{ item.domain_name }}{% for dn in item.aliases %} {{ dn }}{% endfor %};
 
     ssl on;
     ssl_certificate         /etc/letsencrypt/live/{{ item.domain_name }}/fullchain.pem;
