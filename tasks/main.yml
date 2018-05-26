@@ -5,7 +5,7 @@
       package:
         name: "{{ item }}"
         state: latest
-      with_items:
+      loop:
         - nginx
         - certbot
 
@@ -16,7 +16,7 @@
         group: nginx
         mode: 0755
         state: directory
-      with_items:
+      loop:
         - /data/www
         - /data/www/certbot
 
@@ -26,7 +26,7 @@
         state: enabled
         permanent: true
         immediate: true
-      with_items:
+      loop:
         - http
         - https
 
@@ -46,26 +46,26 @@
       systemd:
         name: nginx.service
         state: restarted
-      when: nginx_conf_result|changed
+      when: nginx_conf_result is changed
 
     - name: Run Certbot to obtain SSL certs for each site
       shell: "certbot certonly -n --webroot -w /data/www/certbot -m {{ admin_email }} --agree-tos {% for d in item.aliases %}-d {{d}} {% endfor %}"
       args:
         creates: "/etc/letsencrypt/live/{{ item.domain_name }}"
-      with_items: "{{ nginx_proxy_sites }}"
+      loop: "{{ nginx_proxy_sites }}"
 
     - name: Copy the site config files
       template:
         src: "site.conf.j2"
         dest: "/etc/nginx/conf.d/{{ item.domain_name }}.conf"
       register: site_conf_result
-      with_items: "{{ nginx_proxy_sites }}"
+      loop: "{{ nginx_proxy_sites }}"
 
     - name: Restart Nginx when site configs change
       systemd:
         name: nginx.service
         state: restarted
-      when: site_conf_result|changed
+      when: site_conf_result is changed
 
     - name: Enable Nginx
       systemd:
