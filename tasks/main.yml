@@ -6,7 +6,7 @@
   - name: Install Nginx and other packages
     package:
       name: "{{ item }}"
-      state: latest
+      state: present
     loop:
       - nginx
       - certbot
