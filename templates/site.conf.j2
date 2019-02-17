@@ -1,4 +1,3 @@
-server_tokens off;
 
 server {
     listen 80;
@@ -8,7 +7,7 @@ server {
 }
 
 server {
-    listen 443 ssl default deferred;
+    listen 443 ssl;
     server_name {% for dn in item.aliases %} {{ dn }}{% endfor %};
 
     ssl on;
