@@ -25,9 +25,9 @@ server {
     ssl_dhparam /etc/nginx/dhparams.pem;
     ssl_prefer_server_ciphers on;
 
-    {% if 'auth_basic' in item %}
-    auth_basic "{{ item.auth_basic.description }}";
-    auth_basic_user_file /etc/nginx/{{ item.domain_name }}.passwdfile
+    {% if 'auth_config' in item -%}
+    auth_basic "{{ item.auth_config.description }}";
+    auth_basic_user_file /etc/nginx/{{ item.domain_name }}.passwdfile;
     {% endif %}
 
     location /.well-known/acme-challenge {

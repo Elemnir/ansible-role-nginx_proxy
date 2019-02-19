@@ -63,6 +63,15 @@
     register: site_conf_result
     loop: "{{ nginx_proxy_sites }}"
 
+  - name: Write any passwd files
+    copy:
+      dest: "/etc/nginx/{{ item.domain_name }}.passwdfile"
+      owner: 'nginx'
+      mode: 0700
+      content: "{{ item.auth_config.content }}"
+    when: "'auth_config' in item"
+    loop: "{{ nginx_proxy_sites }}"
+
   - name: Restart Nginx when site configs change
     systemd:
       name: nginx.service
