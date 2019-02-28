@@ -5,16 +5,15 @@ admin_email: ahoward0920@gmail.com
 nginx_proxy_sites: []
 
 # - domain_name: string
-#   enabled: Boolean
 #   internal_address: hostname (127.0.0.1:8010)
 #   aliases: # List of valid domains
 #     - www.example.com
 #     - app.example.com
-#   extra_locations: # List of dictionaries
+#   locations: # List of dictionaries
 #     - path: /path/to/www
 #     - path: /path/to/protected
 #       internal: true # Optionally make it an internal path
-#   auth_basic:
+#   auth_config:
 #     description: "Login Required"
 #     contents: |
 #       user1:$apr1$/woC1jnP$KAh0SsVn5qeSMjTtn0E9Q0

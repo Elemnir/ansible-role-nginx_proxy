@@ -51,7 +51,9 @@
     when: nginx_conf_result is changed
 
   - name: Run Certbot to obtain SSL certs for each site
-    shell: "certbot certonly -n --webroot -w /data/www/certbot -m {{ admin_email }} --agree-tos {% for d in item.aliases %}-d {{d}} {% endfor %}"
+    shell: >
+        certbot certonly -n --webroot -w /data/www/certbot -m {{ admin_email }} --agree-tos -d {{ item.domain_name }}
+        {% if 'aliases' in item %}{% for d in item.aliases %}-d {{d}} {% endfor %}{% endif %}
     args:
       creates: "/etc/letsencrypt/live/{{ item.domain_name }}"
     loop: "{{ nginx_proxy_sites }}"

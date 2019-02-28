@@ -1,14 +1,16 @@
 
 server {
     listen 80;
-    server_name {% for dn in item.aliases %} {{ dn }}{% endfor %};
+    server_name {{ item.domain_name }}{% if 'aliases' in item -%}
+        {% for dn in item.aliases %} {{ dn }}{% endfor %}{% endif %};
 
     return 301 https://$host$request_uri;
 }
 
 server {
     listen 443 ssl;
-    server_name {% for dn in item.aliases %} {{ dn }}{% endfor %};
+    server_name {{ item.domain_name }}{% if 'aliases' in item -%}
+        {% for dn in item.aliases %} {{ dn }}{% endfor %}{% endif %};
 
     ssl on;
     ssl_certificate         /etc/letsencrypt/live/{{ item.domain_name }}/fullchain.pem;
@@ -35,16 +37,19 @@ server {
         try_files $uri $uri/ =404;
     }
 
-    {% if 'extra_locations' in item %}
-    {% for loc in item.extra_locations %}
+    {% if 'locations' in item -%}
+    {% for loc in item.locations -%}
     location {{ loc.url }} {
-        {% if loc.internal is defined and loc.internal %}internal;
+        {% if 'internal' in loc and loc.internal %}internal;
+        {% endif %}
+        {% if 'autoindex' in loc and loc.autoindex %}autoindex on;
         {% endif %}
         alias {{ loc.path }};
     }
     {% endfor %}
     {% endif %}
 
+    {% if 'internal_address' in item -%}
     location / {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
@@ -55,4 +60,6 @@ server {
 
         proxy_pass {{ item.internal_address }};
     }
+    {% endif %}
+
 }
