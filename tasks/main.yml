@@ -58,11 +58,11 @@
   - name: Run Certbot to obtain SSL certs for each site
     shell: >
         certbot certonly -n --webroot -w /data/www/certbot 
-          -m {{ nginx_proxy_admin_email }} 
-          --agree-tos -d {{ item.domain_name }} 
-          {% if 'aliases' in item %}
-            {% for d in item.aliases %}-d {{d}} {% endfor %}
-          {% endif %}
+        -m {{ nginx_proxy_admin_email }} 
+        --agree-tos -d {{ item.domain_name }} 
+        {% if 'aliases' in item %}
+        {% for d in item.aliases %}-d {{d}} {% endfor %}
+        {% endif %}
     args:
       creates: "/etc/letsencrypt/live/{{ item.domain_name }}"
     loop: "{{ nginx_proxy_sites }}"
