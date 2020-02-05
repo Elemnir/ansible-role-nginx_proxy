@@ -13,6 +13,7 @@ nginx_proxy_sites: []
 #     - path: /path/to/www
 #     - path: /path/to/protected
 #       internal: true # Optionally make it an internal path
+#   allow_websockets: True|False
 #   auth_config:
 #     description: "Login Required"
 #     contents: |
