@@ -65,6 +65,7 @@
         {% endif %}
     args:
       creates: "/etc/letsencrypt/live/{{ item.domain_name }}"
+    when: "'cert_path' not in item or 'key_path' not in item"
     loop: "{{ nginx_proxy_sites }}"
 
   - name: Copy the site config files

@@ -19,9 +19,9 @@ server {
         {% for dn in item.aliases %} {{ dn }}{% endfor %}{% endif %};
 
     ssl on;
-    ssl_certificate         /etc/letsencrypt/live/{{ item.domain_name }}/fullchain.pem;
-    ssl_certificate_key     /etc/letsencrypt/live/{{ item.domain_name }}/privkey.pem;
-    ssl_trusted_certificate /etc/letsencrypt/live/{{ item.domain_name }}/fullchain.pem;
+    ssl_certificate         {{ item.cert_path|default('/etc/letsencrypt/live/' + item.domain_name + '/fullchain.pem') }};
+    ssl_certificate_key     {{ item.key_path|default('/etc/letsencrypt/live/' + item.domain_name + '/privkey.pem') }};
+    ssl_trusted_certificate {{ item.cert_path|default('/etc/letsencrypt/live/' + item.domain_name + '/fullchain.pem') }};
 
     ssl_session_cache shared:SSL:50m;
     ssl_session_timeout 5m;
