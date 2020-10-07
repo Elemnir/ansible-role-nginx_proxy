@@ -18,7 +18,6 @@ server {
     server_name {{ item.domain_name }}{% if 'aliases' in item -%}
         {% for dn in item.aliases %} {{ dn }}{% endfor %}{% endif %};
 
-    ssl on;
     ssl_certificate         {{ item.cert_path|default('/etc/letsencrypt/live/' + item.domain_name + '/fullchain.pem') }};
     ssl_certificate_key     {{ item.key_path|default('/etc/letsencrypt/live/' + item.domain_name + '/privkey.pem') }};
     ssl_trusted_certificate {{ item.cert_path|default('/etc/letsencrypt/live/' + item.domain_name + '/fullchain.pem') }};
